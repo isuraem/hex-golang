@@ -68,15 +68,16 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/isuraem/hex/internal/adapters/app/api"
 	"github.com/isuraem/hex/internal/adapters/core/user"
-	"github.com/isuraem/hex/internal/adapters/framework/right/db"
+	"github.com/isuraem/hex/internal/adapters/framework/left/api"
+	"github.com/isuraem/hex/internal/adapters/framework/left/db"
+
+	rightDB "github.com/isuraem/hex/internal/adapters/framework/right/db"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -89,19 +90,20 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable host=%s port=%s",
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"))
+		os.Getenv("DB_NAME"))
 
-	dbConn, err := sql.Open("postgres", connStr)
+	adapter, err := rightDB.NewAdapter("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer adapter.CloseDbConnection()
 
-	userDB := db.NewUserDB(dbConn)
+	userDB := db.NewUserDB(adapter)
 	userService := user.NewUserService(userDB)
 	userAPI := api.NewUserAPI(userService)
 

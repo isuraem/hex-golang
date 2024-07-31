@@ -1,14 +1,10 @@
 package ports
 
-type User struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
+import "github.com/isuraem/hex/internal/models"
 
 type UserService interface {
-	AddUser(user User) error
+	AddUser(user models.User) error
 	RemoveUser(id int) error
-	ViewUser(id int) (User, error)
-	ListUsers() ([]User, error)
+	ViewUser(id int) (models.User, error)
+	ListUsers() ([]models.User, error)
 }

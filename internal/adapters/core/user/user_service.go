@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/isuraem/hex/internal/models"
 	"github.com/isuraem/hex/internal/ports"
 )
 
@@ -14,7 +15,7 @@ func NewUserService(db ports.UserService) *UserService {
 	}
 }
 
-func (s *UserService) AddUser(user ports.User) error {
+func (s *UserService) AddUser(user models.User) error {
 	return s.db.AddUser(user)
 }
 
@@ -22,10 +23,10 @@ func (s *UserService) RemoveUser(id int) error {
 	return s.db.RemoveUser(id)
 }
 
-func (s *UserService) ViewUser(id int) (ports.User, error) {
+func (s *UserService) ViewUser(id int) (models.User, error) {
 	return s.db.ViewUser(id)
 }
 
-func (s *UserService) ListUsers() ([]ports.User, error) {
+func (s *UserService) ListUsers() ([]models.User, error) {
 	return s.db.ListUsers()
 }
