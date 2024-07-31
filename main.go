@@ -73,15 +73,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/isuraem/hex/internal/adapters/app/api"
 	"github.com/isuraem/hex/internal/adapters/core/user"
-	"github.com/isuraem/hex/internal/adapters/framework/left/api"
 	"github.com/isuraem/hex/internal/adapters/framework/left/db"
-
 	rightDB "github.com/isuraem/hex/internal/adapters/framework/right/db"
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 )
 
 func main() {
