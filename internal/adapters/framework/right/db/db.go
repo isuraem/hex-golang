@@ -5,21 +5,27 @@ import (
 	"log"
 	"time"
 
-	sq "github.com/Masterminds/squirrel"
-	_ "github.com/lib/pq"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/driver/pgdriver"
 )
 
 type Adapter struct {
-	DB *sql.DB
+	DB *bun.DB
 }
 
-func NewAdapter(driverName, dataSourceName string) (*Adapter, error) {
-	db, err := sql.Open(driverName, dataSourceName)
-	if err != nil {
-		log.Fatalf("db connection failure %v", err)
-	}
+func NewAdapter(dataSourceName string) (*Adapter, error) {
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dataSourceName)))
 
-	err = db.Ping()
+	db := bun.NewDB(sqldb, pgdialect.New())
+
+	// Optional: set connection pool settings
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(time.Hour)
+
+	// Ping the database to verify the connection
+	err := db.Ping()
 	if err != nil {
 		log.Fatalf("DB ping failure %v", err)
 	}
@@ -32,19 +38,4 @@ func (da *Adapter) CloseDbConnection() {
 	if err != nil {
 		log.Fatalf("DB close failure: %v", err)
 	}
-}
-
-func (da *Adapter) AddToHistory(answer int32, operation string) error {
-	queryString, args, err := sq.Insert("arith_history").Columns("date", "answer", "operation").
-		Values(time.Now(), answer, operation).ToSql()
-	if err != nil {
-		return err
-	}
-
-	_, err = da.DB.Exec(queryString, args...)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
